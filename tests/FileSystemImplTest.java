@@ -65,9 +65,105 @@ class FileSystemImplTest {
         assertThrows(CaminhoNaoEncontradoException.class, () -> fs.chmod("/naoexiste", "root", "root", "rwx"));
     }
 
-    // TODO: Adicionar testes unitários para rm
-    // TODO: Adicionar testes unitários para write/read
-    // TODO: Adicionar testes unitários para mv
-    // TODO: Adicionar testes unitários para ls
-    // TODO: Adicionar testes unitários para cp
+    @Test
+    void rm_RemoveArquivoComSucesso() throws Exception {
+        fs.mkdir("/docs", "root");
+        fs.touch("/docs/arquivo.txt", "root");
+        assertDoesNotThrow(() -> fs.rm("/docs/arquivo.txt", "root"));
+    }
+
+    @Test
+    void rm_LancaExcecaoSeUsuarioSemPermissao() throws Exception {
+        fs.mkdir("/docs", "root");
+        fs.touch("/docs/arquivo.txt", "root");
+        assertThrows(PermissaoException.class, () -> fs.rm("/docs/arquivo.txt", "usuario"));
+    }
+
+    @Test
+    void rm_LancaExcecaoSeCaminhoNaoExiste() {
+        assertThrows(CaminhoNaoEncontradoException.class, () -> fs.rm("/naoexiste.txt", "root"));
+    }
+
+    @Test
+    void write_EscreveEmArquivoComSucesso() throws Exception {
+        fs.mkdir("/docs", "root");
+        fs.touch("/docs/arquivo.txt", "root");
+        assertDoesNotThrow(() -> fs.write("/docs/arquivo.txt", "root", false, "conteudo".getBytes()));
+    }
+
+    @Test
+    void write_LancaExcecaoSeUsuarioSemPermissao() throws Exception {
+        fs.mkdir("/docs", "root");
+        fs.touch("/docs/arquivo.txt", "root");
+        assertThrows(PermissaoException.class, () -> fs.write("/docs/arquivo.txt", "usuario", false, "conteudo".getBytes()));
+    }
+
+   @Test
+    void read_LerArquivoComSucesso() throws Exception {
+        fs.mkdir("/docs", "root");
+        fs.touch("/docs/arquivo.txt", "root");
+        fs.write("/docs/arquivo.txt", "root", false, "conteudo".getBytes());
+        byte[] buffer = new byte[100];
+        fs.read("/docs/arquivo.txt", "root", buffer);
+        String lido = new String(buffer).trim();
+        assertTrue(lido.startsWith("conteudo"));
+    }
+
+    @Test
+    void read_LancaExcecaoSeUsuarioSemPermissao() throws Exception {
+        fs.mkdir("/docs", "root");
+        fs.touch("/docs/arquivo.txt", "root");
+        fs.write("/docs/arquivo.txt", "root", false, "conteudo".getBytes());
+        byte[] buffer = new byte[100];
+        assertThrows(PermissaoException.class, () -> fs.read("/docs/arquivo.txt", "usuario", buffer));
+    }
+
+    @Test
+    void mv_MoveArquivoComSucesso() throws Exception {
+        fs.mkdir("/docs", "root");
+        fs.touch("/docs/arquivo.txt", "root");
+        fs.mkdir("/destino", "root");
+        assertDoesNotThrow(() -> fs.mv("/docs/arquivo.txt", "/destino/arquivo.txt", "root"));
+    }
+
+    @Test
+    void mv_LancaExcecaoSeUsuarioSemPermissao() throws Exception {
+        fs.mkdir("/docs", "root");
+        fs.touch("/docs/arquivo.txt", "root");
+        fs.mkdir("/destino", "root");
+        assertThrows(PermissaoException.class, () -> fs.mv("/docs/arquivo.txt", "/destino/arquivo.txt", "usuario"));
+    }
+
+    @Test
+    void ls_ListaConteudoDiretorioComSucesso() throws Exception {
+        fs.mkdir("/docs", "root");
+        fs.touch("/docs/arquivo.txt", "root");
+        String[] conteudo = fs.ls("/docs", "root");
+        assertArrayEquals(new String[]{"arquivo.txt"}, conteudo);
+    }
+
+    @Test
+    void ls_LancaExcecaoSeUsuarioSemPermissao() throws Exception {
+        fs.mkdir("/docs", "root");
+        fs.touch("/docs/arquivo.txt", "root");
+        assertThrows(PermissaoException.class, () -> fs.ls("/docs", "usuario"));
+    }
+
+    @Test
+    void cp_CopiaArquivoComSucesso() throws Exception {
+        fs.mkdir("/docs", "root");
+        fs.touch("/docs/arquivo.txt", "root");
+        fs.write("/docs/arquivo.txt", "root", "conteudo");
+        fs.mkdir("/destino", "root");
+        assertDoesNotThrow(() -> fs.cp("/docs/arquivo.txt", "/destino/arquivo.txt", "root"));
+        assertEquals("conteudo", fs.read("/destino/arquivo.txt", "root"));
+    }
+
+    @Test
+    void cp_LancaExcecaoSeUsuarioSemPermissao() throws Exception {
+        fs.mkdir("/docs", "root");
+        fs.touch("/docs/arquivo.txt", "root");
+        fs.mkdir("/destino", "root");
+        assertThrows(PermissaoException.class, () -> fs.cp("/docs/arquivo.txt", "/destino/arquivo.txt", "usuario"));
+    }
 }
