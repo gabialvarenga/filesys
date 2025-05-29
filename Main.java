@@ -1,5 +1,8 @@
 import filesys.IFileSystem;
+import model.Usuario;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.io.FileNotFoundException;
 
@@ -51,6 +54,7 @@ public class Main {
         // A partir do momento que um usuário cria outro diretório ou arquivo, 
         // a permissão desse usuário é de leitura, escrita e execução nesse novo diretório/arquivo,
         // e sempre será rwx para o usuário root.
+        List<Usuario> usuarios = new ArrayList<>();
         try {
             Scanner userScanner = new Scanner(new java.io.File("users/users"));
             while (userScanner.hasNextLine()) {
@@ -62,12 +66,7 @@ public class Main {
                         String dir = parts[1];
                         String dirPermission = parts[2];
                         
-                        /* A FAZER:
-                         * Processar a permissão de todos os usuários existentes por diretório.
-                         * Por enquanto esse código somente imprime as permissões contidas no arquivo users.
-                        */
-                        System.out.println(userListed + " " + dir + " " + dirPermission); // Somente imprime o usuário, diretório e permissão
-
+                        usuarios.add(new Usuario(userListed, dirPermission, dir));
 
                     } else {
                         System.out.println("Formato ruim no arquivo de usuários. Linha: " + line);
@@ -84,8 +83,9 @@ public class Main {
         // Finalmente cria o Sistema de Arquivos
         // Lista de usuários é imutável durante a execução do programa
         // Obs: Como passar a lista de usuários para o FileSystem?
-        fileSystem = new FileSystem(/*usuários?*/);
+        fileSystem = new FileSystem(usuarios);
 
+        // ! JA ESTA IMPLEMENTADO NO FILESYSTEM
         // // DESCOMENTE O BLOCO ABAIXO PARA CRIAR O DIRETÓRIO RAIZ ANTES DE RODAR O MENU
         // // Cria o diretório raiz do sistema. Root sempre tem permissão total "rwx"
         // try {

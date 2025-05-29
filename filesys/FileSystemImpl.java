@@ -9,6 +9,7 @@ import model.ElementoFS;
 import model.Usuario;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class FileSystemImpl implements IFileSystem {
@@ -16,10 +17,13 @@ public final class FileSystemImpl implements IFileSystem {
     private Diretorio raiz;
     private Map<String, Usuario> usuarios = new HashMap<>();
 
-    public FileSystemImpl() {
+    public FileSystemImpl(List<Usuario> u) {
         this.raiz = new Diretorio("/", "rwx", ROOT_USER);
         usuarios.put(ROOT_USER, new Usuario(ROOT_USER, "rwx", "/"));
-        // TODO: Carregar usuários adicionais do arquivo users/users se necessário
+        for (Usuario usuario : u) {
+            if(!usuario.getNome().equalsIgnoreCase("root")) 
+                usuarios.put(usuario.getNome(), usuario);
+        }
     }
 
     // TODO: Validar se o método navegar cobre todos os casos de caminhos relativos e absolutos
