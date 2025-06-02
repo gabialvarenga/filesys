@@ -24,7 +24,7 @@ public final class FileSystemImpl implements IFileSystem {
             if(!usuario.getNome().equalsIgnoreCase("root")) 
                 usuarios.put(usuario.getNome(), usuario);
         }
-    }
+    } 
 
     // TODO: Validar se o método navegar cobre todos os casos de caminhos relativos e absolutos
     private ElementoFS navegar(String caminho) throws CaminhoNaoEncontradoException {
