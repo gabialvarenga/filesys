@@ -4,17 +4,21 @@ import exception.CaminhoJaExistenteException;
 import exception.CaminhoNaoEncontradoException;
 import exception.PermissaoException;
 import filesys.FileSystemImpl;
+import model.Usuario;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.Collections;
 
 class FileSystemImplTest {
     private FileSystemImpl fs;
 
     @BeforeEach
     void setUp() {
-        fs = new FileSystemImpl();
+        fs = new FileSystemImpl(Collections.singletonList(new Usuario("root", "rwx", "/")));
     }
 
     @Test
@@ -76,12 +80,12 @@ class FileSystemImplTest {
     void rm_LancaExcecaoSeUsuarioSemPermissao() throws Exception {
         fs.mkdir("/docs", "root");
         fs.touch("/docs/arquivo.txt", "root");
-        assertThrows(PermissaoException.class, () -> fs.rm("/docs/arquivo.txt", "usuario"));
+        assertThrows(PermissaoException.class, () -> fs.rm("/docs/arquivo.txt", "usuario", false));
     }
 
     @Test
     void rm_LancaExcecaoSeCaminhoNaoExiste() {
-        assertThrows(CaminhoNaoEncontradoException.class, () -> fs.rm("/naoexiste.txt", "root"));
+        assertThrows(CaminhoNaoEncontradoException.class, () -> fs.rm("/naoexiste.txt", "root", false));
     }
 
     @Test
@@ -146,17 +150,21 @@ class FileSystemImplTest {
     void ls_LancaExcecaoSeUsuarioSemPermissao() throws Exception {
         fs.mkdir("/docs", "root");
         fs.touch("/docs/arquivo.txt", "root");
-        assertThrows(PermissaoException.class, () -> fs.ls("/docs", "usuario"));
+        assertThrows(PermissaoException.class, () -> fs.ls("/docs", "usuario", false));
     }
 
     @Test
     void cp_CopiaArquivoComSucesso() throws Exception {
         fs.mkdir("/docs", "root");
         fs.touch("/docs/arquivo.txt", "root");
-        fs.write("/docs/arquivo.txt", "root", "conteudo");
+        fs.write("/docs/arquivo.txt", "root",false, "conteudo".getBytes());
         fs.mkdir("/destino", "root");
-        assertDoesNotThrow(() -> fs.cp("/docs/arquivo.txt", "/destino/arquivo.txt", "root"));
-        assertEquals("conteudo", fs.read("/destino/arquivo.txt", "root"));
+        assertDoesNotThrow(() -> fs.cp("/docs/arquivo.txt", "/destino/arquivo.txt", "root",false));
+        byte[] buffer = new byte["conteudo".length()]; // Use the length of the expected content
+        fs.read("/destino/arquivo.txt", "root", buffer);
+        String conteudo = new String(buffer).trim();
+        assertEquals("conteudo", conteudo);
+
     }
 
     @Test
@@ -164,6 +172,6 @@ class FileSystemImplTest {
         fs.mkdir("/docs", "root");
         fs.touch("/docs/arquivo.txt", "root");
         fs.mkdir("/destino", "root");
-        assertThrows(PermissaoException.class, () -> fs.cp("/docs/arquivo.txt", "/destino/arquivo.txt", "usuario"));
+        assertThrows(PermissaoException.class, () -> fs.cp("/docs/arquivo.txt", "/destino/arquivo.txt", "usuario",false));
     }
 }

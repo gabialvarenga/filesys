@@ -88,11 +88,11 @@ public class Main {
         // ! JA ESTA IMPLEMENTADO NO FILESYSTEM
         // // DESCOMENTE O BLOCO ABAIXO PARA CRIAR O DIRETÓRIO RAIZ ANTES DE RODAR O MENU
         // // Cria o diretório raiz do sistema. Root sempre tem permissão total "rwx"
-        // try {
-        //     fileSystem.mkdir(ROOT_DIR, ROOT_USER);
-        // } catch (CaminhoJaExistenteException | PermissaoException e) {
-        //     System.out.println(e.getMessage());
-        // }
+        try {
+            fileSystem.mkdir(ROOT_DIR, ROOT_USER);
+         } catch (CaminhoJaExistenteException | PermissaoException e) {
+        System.out.println(e.getMessage());
+         }
 
         // Menu interativo.
         menu();
